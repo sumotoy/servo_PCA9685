@@ -32,17 +32,16 @@ void setup() {
 void loop() {
   // Drive each servo one at a time
   Serial.println(servonum);
-  for (uint16_t pulselen = servo.getServoMin(); pulselen < servo.getServoMax(); pulselen++) {
+  for (uint16_t pulselen = servo.getServoMin(servonum); pulselen < servo.getServoMax(servonum); pulselen++) {
     servo.setPWM(servonum, 0, pulselen);
   }
-  delay(100);
-  for (uint16_t pulselen = servo.getServoMax(); pulselen > servo.getServoMin(); pulselen--) {
+  delay(200);
+  for (uint16_t pulselen = servo.getServoMax(servonum); pulselen > servo.getServoMin(servonum); pulselen--) {
     servo.setPWM(servonum, 0, pulselen);
   }
-  delay(100);
+  delay(200);
 
   servonum ++;
   if (servonum > MAX_SERVOS) servonum = 0;
 
 }
-

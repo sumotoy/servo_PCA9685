@@ -14,6 +14,7 @@ void setup() {
 #else
   Serial.begin(38400);
 #endif
+  Serial.println("\nservo start");
   servo.begin();
 
 

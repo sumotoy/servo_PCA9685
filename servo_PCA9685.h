@@ -30,6 +30,8 @@
 #include "_includes/PCA9685_registers.h"
 #include "_settings/PCA9685_settings.h"
 
+enum PAC9685mechanical {STANDARD=0,CONTINUOUS };
+
 class servo_PCA9685 {
 
  public:
@@ -39,16 +41,18 @@ class servo_PCA9685 {
 		servo_PCA9685(const uint8_t adrs=0x40);
 	#endif
 	void		begin(bool skipWireInit=false);
-	void		reset(void);
 	void 		setPWMFreq(float freq);
-	void 		setPWM(uint8_t num, uint16_t on, uint16_t off);
-	void 		setPin(uint8_t num, uint16_t val, bool invert);
-	void 		setServoMin(uint16_t minVal);
-	void 		setServoMax(uint16_t maxVal);
-	uint16_t 	getServoMin(void);
-	uint16_t 	getServoMax(void);
+	void		moveServo(uint8_t servo,uint8_t pos);
+	void 		setPWM(uint8_t servo, uint16_t on, uint16_t off);
+	void		setServoType(uint8_t servo,const enum PAC9685mechanical type=STANDARD);
+	void 		setServoMin(uint8_t servo,uint16_t minVal);
+	void 		setServoMax(uint8_t servo,uint16_t maxVal);
+	uint16_t 	getServoMin(uint8_t servo);
+	uint16_t 	getServoMax(uint8_t servo);
+	//void 		setPin(uint8_t num, uint16_t val, bool invert);//will be deprecated soon
  protected:
- 
+	uint8_t 	_adrs;
+	
 	void _sendWire(uint8_t reg, uint8_t val)
 	__attribute__((always_inline)) {
 		WIRE.beginTransmission(_adrs);
@@ -62,17 +66,17 @@ class servo_PCA9685 {
 		WIRE.beginTransmission(_adrs);
 		WIRE.write(reg);
 		WIRE.endTransmission();
-		WIRE.requestFrom((uint8_t)_adrs, (uint8_t)1);
+		WIRE.requestFrom(_adrs,1);
 		return WIRE.read();
 	}
 	
-	void _setPWM(uint8_t num, uint16_t on, uint16_t off)
+	void _setPWM(uint8_t servo, uint16_t on, uint16_t off)
 	__attribute__((always_inline)) {
 		WIRE.beginTransmission(_adrs);
-		WIRE.write(PCA9685_BASEOUT_ON_L + (4 * num));
-		WIRE.write(on);
+		WIRE.write((uint8_t)(PCA9685_BASEOUT_ON_L + (4 * servo)));
+		WIRE.write(on & 0xFF);
 		WIRE.write(on >> 8);
-		WIRE.write(off);
+		WIRE.write(off & 0xFF);
 		WIRE.write(off >> 8);
 		WIRE.endTransmission();
 	}
@@ -81,10 +85,10 @@ class servo_PCA9685 {
  #if defined(ESP8266)
 	uint8_t 	_sclPin;
 	uint8_t 	_sdaPin;
-	uint16_t	_servoMin;
-	uint16_t	_servoMax;
  #endif
-	uint8_t 	_adrs;
+	bool		_servoType[16];
+	uint16_t	_servoMin[16];
+	uint16_t	_servoMax[16];
 	
 };
 
