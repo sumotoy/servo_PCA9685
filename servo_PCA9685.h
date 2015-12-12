@@ -66,7 +66,7 @@ class servo_PCA9685 {
 		WIRE.beginTransmission(_adrs);
 		WIRE.write(reg);
 		WIRE.endTransmission();
-		WIRE.requestFrom(_adrs,1);
+		WIRE.requestFrom((uint8_t)_adrs,(uint8_t)1);
 		return WIRE.read();
 	}
 	
